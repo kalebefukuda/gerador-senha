@@ -1,103 +1,123 @@
-import Image from "next/image";
+'use client'; // Indica que este componente roda no lado do cliente (Next.js 13+)
 
-export default function Home() {
+// Importa os hooks de estado do React
+import { useState } from "react";
+// Importa a função de geração de senha (função pura)
+import { generatePassword } from "@/utils/generatePassword";
+
+// Componente principal da página de geração de senha
+export default function GeneratePasswordPage() {
+  // Estados para controlar as opções de geração
+  const [length, setLength] = useState(12);             // Comprimento da senha
+  const [useUpper, setUseUpper] = useState(true);       // Letras maiúsculas
+  const [useLower, setUseLower] = useState(true);       // Letras minúsculas
+  const [useDigits, setUseDigits] = useState(true);     // Números
+  const [useSpecial, setUseSpecial] = useState(true);   // Caracteres especiais
+  const [password, setPassword] = useState("");         // Senha gerada
+  const [error, setError] = useState("");               // Mensagem de erro
+
+  // Função chamada ao clicar no botão "Gerar Senha"
+  function handleGenerate() {
+    // Validação: precisa ter ao menos um tipo e tamanho permitido
+    if (
+      length < 8 ||
+      length > 32 ||
+      ![useUpper, useLower, useDigits, useSpecial].some(Boolean)
+    ) {
+      setError("Selecione pelo menos um tipo e tamanho entre 8 e 32.");
+      setPassword(""); // Limpa a senha se inválido
+      return;
+    }
+    setError(""); // Limpa erro, se houver
+    // Gera a senha e armazena no estado
+    setPassword(
+      generatePassword({ length, useUpper, useLower, useDigits, useSpecial })
+    );
+  }
+
+  // Renderização da interface
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-900">
+      {/* Caixa principal, centralizada na tela */}
+      <div className="bg-neutral-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        {/* Título */}
+        <h1 className="text-2xl font-extrabold mb-5 text-white text-center tracking-tight">
+          Gerador de Senhas Seguras
+        </h1>
+        {/* Campo de tamanho da senha */}
+        <div className="mb-3">
+          <label className="block font-semibold mb-1 text-neutral-300">
+            Tamanho da senha
+          </label>
+          <input
+            type="number"
+            className="w-full p-2 bg-neutral-900 border border-neutral-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            value={length}
+            min={8}
+            max={32}
+            onChange={e => setLength(Number(e.target.value))}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* Opções de composição da senha */}
+        <div className="flex flex-col gap-2 mb-5">
+          {/* Maiúsculas */}
+          <label className="flex gap-2 items-center text-neutral-200 font-medium">
+            <input
+              type="checkbox"
+              checked={useUpper}
+              onChange={e => setUseUpper(e.target.checked)}
+            />
+            Incluir letras <span className="font-bold">MAIÚSCULAS</span>
+          </label>
+          {/* Minúsculas */}
+          <label className="flex gap-2 items-center text-neutral-200 font-medium">
+            <input
+              type="checkbox"
+              checked={useLower}
+              onChange={e => setUseLower(e.target.checked)}
+            />
+            Incluir letras <span className="font-bold">minúsculas</span>
+          </label>
+          {/* Números */}
+          <label className="flex gap-2 items-center text-neutral-200 font-medium">
+            <input
+              type="checkbox"
+              checked={useDigits}
+              onChange={e => setUseDigits(e.target.checked)}
+            />
+            Incluir <span className="font-bold">números</span>
+          </label>
+          {/* Símbolos */}
+          <label className="flex gap-2 items-center text-neutral-200 font-medium">
+            <input
+              type="checkbox"
+              checked={useSpecial}
+              onChange={e => setUseSpecial(e.target.checked)}
+            />
+            Incluir símbolos <span className="font-bold">(!@#$%&*?)</span>
+          </label>
+        </div>
+        {/* Botão para gerar senha */}
+        <button
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-extrabold text-lg shadow-md transition"
+          onClick={handleGenerate}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Gerar Senha
+        </button>
+        {/* Mensagem de erro se algo estiver inválido */}
+        {error && (
+          <div className="mt-4 text-red-400 font-semibold text-center">{error}</div>
+        )}
+        {/* Exibe a senha gerada, se houver */}
+        {password && (
+          <div className="mt-6">
+            <label className="font-bold text-neutral-200">Senha gerada:</label>
+            <div className="mt-2 p-3 bg-neutral-900 rounded-lg font-mono text-lg text-green-400 border border-green-700 tracking-wide select-all shadow-inner">
+              {password}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
